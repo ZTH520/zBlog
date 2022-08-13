@@ -1,30 +1,24 @@
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
-import vueJsx from '@vitejs/plugin-vue-jsx';
-import vueEslint from 'vite-plugin-eslint';
-import AutoImport from 'unplugin-auto-import/vite';
-import Components from 'unplugin-vue-components/vite';
-import { TDesignResolver } from 'unplugin-vue-components/resolvers';
+import { UserConfig, ConfigEnv } from 'vite';
+import { resolve } from 'path';
+import { createVitePlugins } from './build/vite/plugins';
+import { VITE_PORT } from './build/constant';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [
-    vue(),
-    vueJsx(),
-    vueEslint(),
-    AutoImport({
-      resolvers: [
-        TDesignResolver({
-          library: 'vue-next',
-        }),
+export default ({ command }: ConfigEnv): UserConfig => {
+  const isBuild = command === 'build';
+  return {
+    resolve: {
+      alias: [
+        {
+          find: '@',
+          replacement: resolve(__dirname, 'src'),
+        },
       ],
-    }),
-    Components({
-      resolvers: [
-        TDesignResolver({
-          library: 'vue-next',
-        }),
-      ],
-    }),
-  ],
-});
+    },
+    server: {
+      open: true,
+      host: true,
+      port: VITE_PORT,
+    },
+    plugins: createVitePlugins(isBuild),
+  };
+};
